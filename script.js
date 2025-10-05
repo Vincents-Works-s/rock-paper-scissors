@@ -1,70 +1,70 @@
+const WINNING_COMBINATIONS = {
+    rock: 'scissors',
+    paper: 'rock',
+    scissors: 'paper'
+};
+
+let humanScore = 0;
+let computerScore = 0;
+
+const selection = document.getElementById('selection');
+const roundMessage = document.getElementById('round-message');
+const scoreText = document.getElementById('score-text');
+const winnerText = document.getElementById('winner-text');
+
+const rockBtn = document.getElementById('rock');
+const paperBtn = document.getElementById('paper');
+const scissorsBtn = document.getElementById('scissors');
+
 function getComputerChoice() {
-    const computerChoice = Math.floor(Math.random() * 3);
-    switch (computerChoice) {
-        case 0:
-            return 'rock';
-        case 1:
-            return 'paper';
-        case 2:
-            return 'scissors';
+    const choices = ['rock', 'paper', 'scissors'];
+    return choices[Math.floor(Math.random() * choices.length)];
+}
+
+function updateSelection(humanChoice, computerChoice) {
+    selection.textContent = `You chose: ${humanChoice} -- The House chose: ${computerChoice}`;
+}
+
+function updateRoundMessage(winningMove, losingMove, winner) {
+    if (winner === 'tie') {
+        roundMessage.textContent = `${winningMove} ties with ${losingMove}...`;
+    } else {
+        const verb = winner === 'You' ? 'win' : 'wins';
+        roundMessage.textContent = `${winningMove} beats ${losingMove}. ${winner} ${verb}!`;
     }
 }
 
-function getHumanChoice() {
-    const humanChoice = prompt('Choose rock, paper, or scissors').toLowerCase();
-    return humanChoice;
+function updateScore(humanScore, computerScore) {
+    scoreText.textContent = `You: ${humanScore} -- The House: ${computerScore}`;
 }
 
-let humanScore = 0, computerScore = 0;
+function updateWinner() {
+    if (humanScore >= 5) {
+        winnerText.textContent = 'You win!';
+    } else if (computerScore >= 5) {
+        winnerText.textContent = 'The House wins!';
+    }
+}
 
 function playRound(humanChoice, computerChoice) {
-    if (humanChoice === 'rock') {
-        if (computerChoice === 'rock') {
-            console.log('Tie! You both chose rock!');
-        } else if (computerChoice === 'paper') {
-            console.log('You lose! Paper beats rock!');
-            computerScore++;
-        } else if (computerChoice === 'scissors') {
-            console.log('You win! Rock beats scissors!');
-            humanScore++;
-        }
-    } else if (humanChoice === 'paper') {
-        if (computerChoice === 'rock') {
-            console.log('You win! Paper beats rock!');
-            humanScore++;
-        } else if (computerChoice === 'paper') {
-            console.log('Tie! You both chose paper!');
-        } else if (computerChoice === 'scissors') {
-            console.log('You lose! Scissors beats paper!');
-            computerScore++;
-        }
-    } else if (humanChoice === 'scissors') {
-        if (computerChoice === 'rock') {
-            console.log('You lose! Rock beats scissors!');
-            computerScore++;
-        } else if (computerChoice === 'paper') {
-            console.log('You win! Scissors beats paper!');
-            humanScore++;
-        } else if (computerChoice === 'scissors') {
-            console.log('Tie! You both chose scissors!');
-        }
-    }
-}
+    updateSelection(humanChoice, computerChoice);
 
-function playGame() {
-    playRound(getHumanChoice(), getComputerChoice());
-    playRound(getHumanChoice(), getComputerChoice());
-    playRound(getHumanChoice(), getComputerChoice());
-    playRound(getHumanChoice(), getComputerChoice());
-    playRound(getHumanChoice(), getComputerChoice());
-
-    if (humanScore > computerScore) {
-        console.log(`YOU WIN! Human: ${humanScore}, Computer: ${computerScore}`);
-    } else if (humanScore < computerScore) {
-        console.log(`YOU LOST! Human: ${humanScore}, Computer: ${computerScore}`);
+    if (WINNING_COMBINATIONS[humanChoice] === computerChoice) {
+        updateRoundMessage(humanChoice, computerChoice, 'You');
+        humanScore++;
+    } else if (WINNING_COMBINATIONS[computerChoice] === humanChoice) {
+        updateRoundMessage(computerChoice, humanChoice, 'The House');
+        computerScore++;
     } else {
-        console.log(`TIE! Human: ${humanScore}, Computer: ${computerScore}`);
+        updateRoundMessage(humanChoice, computerChoice, 'tie');
     }
+    
+    updateScore(humanScore, computerScore);
+    updateWinner();
 }
 
-playGame();
+[rockBtn, paperBtn, scissorsBtn].forEach(button => {
+    button.addEventListener('click', () => {
+        playRound(button.value, getComputerChoice());
+    });
+});
